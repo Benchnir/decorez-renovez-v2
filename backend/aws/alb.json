@@ -1,0 +1,51 @@
+{
+    "loadBalancerArn": "arn:aws:elasticloadbalancing:eu-west-3:your-account-id:loadbalancer/app/decorez-api/your-lb-id",
+    "listeners": [
+        {
+            "port": 443,
+            "protocol": "HTTPS",
+            "certificates": [
+                {
+                    "certificateArn": "arn:aws:acm:eu-west-3:your-account-id:certificate/your-certificate-id"
+                }
+            ],
+            "defaultActions": [
+                {
+                    "type": "forward",
+                    "targetGroupArn": "arn:aws:elasticloadbalancing:eu-west-3:your-account-id:targetgroup/decorez-api/your-target-group-id"
+                }
+            ]
+        },
+        {
+            "port": 80,
+            "protocol": "HTTP",
+            "defaultActions": [
+                {
+                    "type": "redirect",
+                    "redirectConfig": {
+                        "protocol": "HTTPS",
+                        "port": "443",
+                        "statusCode": "HTTP_301"
+                    }
+                }
+            ]
+        }
+    ],
+    "securityGroups": [
+        "sg-your-alb-security-group"
+    ],
+    "subnets": [
+        "subnet-your-public-subnet-1",
+        "subnet-your-public-subnet-2"
+    ],
+    "tags": [
+        {
+            "key": "Environment",
+            "value": "Production"
+        },
+        {
+            "key": "Project",
+            "value": "Decorez-Renovez"
+        }
+    ]
+}

@@ -1,0 +1,76 @@
+{
+  "name": "Décorez-Rénovez",
+  "short_name": "Décorez",
+  "description": "Plateforme de mise en relation entre artisans et clients pour projets de rénovation",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4F46E5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Créer un projet",
+      "short_name": "Nouveau projet",
+      "description": "Créer un nouveau projet de rénovation",
+      "url": "/projects/new",
+      "icons": [{ "src": "/icons/add-project.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mes projets",
+      "short_name": "Projets",
+      "description": "Voir mes projets en cours",
+      "url": "/projects",
+      "icons": [{ "src": "/icons/projects.png", "sizes": "192x192" }]
+    }
+  ]
+}

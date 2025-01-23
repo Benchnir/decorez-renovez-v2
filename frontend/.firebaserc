@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "decorez-renovez",
+    "production": "decorez-renovez",
+    "staging": "decorez-renovez-staging"
+  }
+}

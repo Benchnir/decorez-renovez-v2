@@ -1,0 +1,39 @@
+{
+    "cluster": "decorez-cluster",
+    "serviceName": "decorez-api",
+    "taskDefinition": "decorez-api",
+    "loadBalancers": [
+        {
+            "targetGroupArn": "arn:aws:elasticloadbalancing:eu-west-3:your-account-id:targetgroup/decorez-api/your-target-group-id",
+            "containerName": "decorez-api",
+            "containerPort": 80
+        }
+    ],
+    "desiredCount": 2,
+    "launchType": "FARGATE",
+    "platformVersion": "LATEST",
+    "networkConfiguration": {
+        "awsvpcConfiguration": {
+            "subnets": [
+                "subnet-your-private-subnet-1",
+                "subnet-your-private-subnet-2"
+            ],
+            "securityGroups": [
+                "sg-your-security-group"
+            ],
+            "assignPublicIp": "DISABLED"
+        }
+    },
+    "healthCheckGracePeriodSeconds": 60,
+    "deploymentConfiguration": {
+        "maximumPercent": 200,
+        "minimumHealthyPercent": 100,
+        "deploymentCircuitBreaker": {
+            "enable": true,
+            "rollback": true
+        }
+    },
+    "enableECSManagedTags": true,
+    "propagateTags": "SERVICE",
+    "enableExecuteCommand": true
+}

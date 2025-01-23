@@ -1,0 +1,29 @@
+{
+    "changes": [
+        {
+            "action": "UPSERT",
+            "resourceRecordSet": {
+                "name": "api.decorez-renovez.fr",
+                "type": "A",
+                "aliasTarget": {
+                    "hostedZoneId": "your-hosted-zone-id",
+                    "dnsName": "your-alb-dns-name",
+                    "evaluateTargetHealth": true
+                }
+            }
+        },
+        {
+            "action": "UPSERT",
+            "resourceRecordSet": {
+                "name": "www.decorez-renovez.fr",
+                "type": "CNAME",
+                "ttl": 300,
+                "resourceRecords": [
+                    {
+                        "value": "decorez-renovez.web.app"
+                    }
+                ]
+            }
+        }
+    ]
+}
