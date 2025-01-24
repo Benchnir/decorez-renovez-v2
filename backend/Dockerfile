@@ -1,40 +1,43 @@
 # Build stage
-FROM composer:2.5 as vendor
-WORKDIR /app
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
-
-# Final stage
-FROM php:8.2-fpm-alpine
+FROM php:8.2-apache
 
 # Install system dependencies
-RUN apk add --no-cache \
-    nginx \
-    supervisor \
-    postgresql-dev \
-    && docker-php-ext-install pdo pdo_pgsql
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip
 
-# Configure nginx
-COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Configure PHP
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Configure supervisord
-COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Get latest Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy application
+# Set working directory
 WORKDIR /var/www/html
+
+# Copy application files
 COPY . .
-COPY --from=vendor /app/vendor ./vendor
+
+# Install dependencies
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 RUN composer dump-autoload --optimize --no-dev
+
+# Copy apache configuration
+COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+RUN a2enmod rewrite
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage
 
-# Expose port
 EXPOSE 80
 
-# Start supervisord
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["apache2-foreground"]
