@@ -2,14 +2,14 @@
 
 Une plateforme innovante qui connecte les particuliers avec des artisans qualifiés pour leurs projets de rénovation et de décoration.
 
-*Dernière mise à jour : 23 janvier 2025*
+*Dernière mise à jour : 24 janvier 2025 - Test de déploiement*
 
 ## Structure du Projet
 
 Le projet est divisé en trois parties principales :
 
-- `frontend/` : Application web Next.js
-- `backend/` : API PHP Laravel
+- `frontend/` : Application web Next.js (Firebase Hosting)
+- `backend/` : API PHP Laravel (AWS ECS)
 - `mobile/` : Application mobile React Native/Expo
 
 ## Configuration du Développement
