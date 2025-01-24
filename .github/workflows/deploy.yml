@@ -9,6 +9,9 @@ on:
 jobs:
   deploy-frontend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v3
       
@@ -16,20 +19,18 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
       
       - name: Install Dependencies
         run: |
-          cd frontend
-          npm ci || npm install
+          npm install
       
       - name: Build
         run: |
-          cd frontend
-          CI=false npm run build
+          npm run build
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          CI: false
+          NODE_OPTIONS: --max-old-space-size=4096
       
       - name: Deploy to Firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
@@ -38,23 +39,27 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
           projectId: decorez-renovez-v2
           channelId: live
-          entryPoint: ./frontend
+          entryPoint: frontend
 
   deploy-backend:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v3
       
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-3
+          mask-aws-account-id: true
       
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
       
       - name: Build and push Docker image
         env:
@@ -63,11 +68,15 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           cd backend
+          echo "Building Docker image..."
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          echo "Pushing Docker image..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "Tagging as latest..."
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
       
       - name: Update ECS service
         run: |
+          aws ecs wait services-stable --cluster decorez-cluster --services decorez-api-service-v2
           aws ecs update-service --cluster decorez-cluster --service decorez-api-service-v2 --force-new-deployment
