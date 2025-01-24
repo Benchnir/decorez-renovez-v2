@@ -1,0 +1,78 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3
+          mask-aws-account-id: true
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: decorez-api
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          cd backend
+          echo "Starting Docker build..."
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          if [ $? -ne 0 ]; then
+            echo "Docker build failed"
+            exit 1
+          fi
+          
+          echo "Pushing image to ECR..."
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          if [ $? -ne 0 ]; then
+            echo "Failed to push image to ECR"
+            exit 1
+          fi
+          
+          echo "Tagging as latest..."
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+      
+      - name: Verify ECS cluster
+        run: |
+          echo "Verifying ECS cluster..."
+          aws ecs describe-clusters --clusters decorez-cluster || aws ecs create-cluster --cluster-name decorez-cluster
+      
+      - name: Update or create ECS service
+        run: |
+          echo "Checking if service exists..."
+          if aws ecs describe-services --cluster decorez-cluster --services decorez-api-service-v2 | grep ACTIVE; then
+            echo "Updating existing service..."
+            aws ecs update-service --cluster decorez-cluster --service decorez-api-service-v2 --force-new-deployment
+          else
+            echo "Creating new service..."
+            aws ecs create-service \
+              --cluster decorez-cluster \
+              --service-name decorez-api-service-v2 \
+              --task-definition decorez-api:1 \
+              --desired-count 1
+          fi
