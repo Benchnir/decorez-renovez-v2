@@ -2,7 +2,7 @@
 
 Une plateforme innovante qui connecte les particuliers avec des artisans qualifiés pour leurs projets de rénovation et de décoration.
 
-*Dernière mise à jour : 24 janvier 2025 - Configuration du déploiement automatique*
+*Dernière mise à jour : 24 janvier 2025 - Configuration du déploiement automatique v2*
 
 ## Structure du Projet
 
@@ -54,6 +54,11 @@ npm start
 ```
 
 ## Déploiement
+
+Le déploiement est automatisé via GitHub Actions :
+- Frontend : Firebase Hosting
+- Backend : AWS ECS
+- Mobile : Expo
 
 ### Frontend (Firebase)
 
