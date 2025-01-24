@@ -2,7 +2,7 @@
 
 Une plateforme innovante qui connecte les particuliers avec des artisans qualifiés pour leurs projets de rénovation et de décoration.
 
-*Dernière mise à jour : 24 janvier 2025 - Test de déploiement*
+*Dernière mise à jour : 24 janvier 2025 - Configuration du déploiement automatique*
 
 ## Structure du Projet
 
