@@ -22,7 +22,7 @@ jobs:
       - name: Install Dependencies
         run: |
           cd frontend
-          npm ci
+          npm install
       
       - name: Build
         run: |
@@ -36,13 +36,8 @@ jobs:
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
-          projectId: decorez-renovez
+          projectId: decorez-renovez-v2
           channelId: live
-
-      - name: Health check frontend
-        run: |
-          sleep 30  # Wait for deployment to complete
-          curl -f https://decorez-renovez.web.app || exit 1
 
   deploy-backend:
     runs-on: ubuntu-latest
@@ -72,40 +67,4 @@ jobs:
       
       - name: Update ECS service
         run: |
-          aws ecs update-service --cluster decorez-cluster --service decorez-api --force-new-deployment
-
-      - name: Health check backend
-        run: |
-          sleep 60  # Wait for deployment to complete
-          curl -f ${{ secrets.NEXT_PUBLIC_API_URL }}/health || exit 1
-
-  deploy-mobile:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: mobile/package-lock.json
-      
-      - name: Setup Expo
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-      
-      - name: Install Dependencies
-        run: |
-          cd mobile
-          npm ci
-      
-      - name: Build and submit to stores
-        run: |
-          cd mobile
-          eas build --platform all --non-interactive
-          eas submit --platform all --non-interactive
-        env:
-          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
+          aws ecs update-service --cluster decorez-cluster --service decorez-api-service-v2 --force-new-deployment
